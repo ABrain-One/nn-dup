@@ -2,6 +2,8 @@
 
 A sophisticated data curation and near-deduplication pipeline for neural network code from the LEMUR dataset. This project implements prefix-aware exact/near/AST deduplication with diversity top-up capabilities.
 
+The original version of the NN Dup project was created by <strong>Waleed Khalid</strong> at the Computer Vision Laboratory, University of Würzburg, Germany.
+
 ## Overview
 
 This pipeline processes neural network implementations from the LEMUR dataset, performing:
