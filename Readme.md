@@ -1,4 +1,6 @@
-# Neural Network Deduplication Pipeline (nn-dup)
+# Neural Network Deduplication Pipeline (NN Dup)
+<sub><a href='https://pypi.python.org/pypi/nn-dup'><img src='https://img.shields.io/pypi/v/nn-dup.svg'/></a> <a href="https://pepy.tech/project/nn-dup"><img alt="GitHub release" src="https://static.pepy.tech/badge/nn-dup"></a><br/>
+short alias <a href='https://pypi.python.org/pypi/ldup'>ldup</a></sub>
 
 A sophisticated data curation and near-deduplication pipeline for neural network code from the LEMUR dataset. This project implements prefix-aware exact/near/AST deduplication with diversity top-up capabilities.
 
