@@ -1,0 +1,3 @@
+nn-dataset>=2.1.0
+datasketch
+pandas>=1.3,<3.0
