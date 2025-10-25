@@ -46,6 +46,14 @@ This pipeline processes neural network implementations from the LEMUR dataset, p
    pip install -e .
    ```
 
+### Install directly from GitHub
+
+Install the latest version directly from the GitHub repository:
+
+```bash
+pip install git+https://github.com/ABrain-One/nn-dup.git
+```
+
 ## Usage
 
 ### Basic Usage
