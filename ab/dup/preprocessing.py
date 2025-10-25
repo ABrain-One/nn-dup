@@ -291,19 +291,32 @@ def diversity_topup(kept: Dict[str, dict],
 # Main pipeline
 # ------------------------------------------------------------------------------
 
-def curate_from_lemur(out_dir: Path,
-                      includes: List[str],
-                      prefer_order: List[str],
-                      min_per_prefix: int,
-                      keep_per_family: int,
-                      lex_thresh_fractal: float,
-                      topup_prefixes: List[str],
-                      topup_per_prefix: int,
-                      topup_lex_max: float,
-                      topup_struct_max: float,
-                      dump_code_subdir: str,
-                      upweights: List[Tuple[str, float]],
-                      logger: logging.Logger):
+def curate_from_lemur(out_dir: Path = Path("./curation_output"),
+                      includes: List[str] = None,
+                      prefer_order: List[str] = None,
+                      min_per_prefix: int = 1,
+                      keep_per_family: int = 5,
+                      lex_thresh_fractal: float = 0.97,
+                      topup_prefixes: List[str] = None,
+                      topup_per_prefix: int = 10,
+                      topup_lex_max: float = 0.85,
+                      topup_struct_max: float = 0.60,
+                      dump_code_subdir: str = "accepted_code",
+                      upweights: List[Tuple[str, float]] = None,
+                      logger: logging.Logger = None):
+
+    # Set defaults for None values
+    if includes is None:
+        includes = []
+    if prefer_order is None:
+        prefer_order = includes[:] if includes else []
+    if topup_prefixes is None:
+        topup_prefixes = []
+    if upweights is None:
+        upweights = []
+    if logger is None:
+        from .utils.logutils import setup_logging
+        logger = setup_logging(verbose=False)
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
