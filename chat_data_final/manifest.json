@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "counts": {
+      "train": 1706,
+      "dev": 214,
+      "test": 210
+    },
+    "total_examples": 2130,
+    "unique_sources": 1065,
+    "overlap": {
+      "train_dev": 0,
+      "train_test": 0,
+      "dev_test": 0
+    }
+  }
+}
