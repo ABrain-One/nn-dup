@@ -8,21 +8,38 @@ The original version of the NN Dup project was created by <strong>Waleed Khalid<
 
 ## Overview
 
-This pipeline processes neural network implementations from the LEMUR dataset, performing:
+This comprehensive pipeline processes neural network implementations from the LEMUR dataset through two main stages:
+
+### Stage 1: Deduplication Pipeline
 - **Exact deduplication** with prefix-aware canonicalization
 - **Lexical near-deduplication** using MinHash and LSH
 - **Structural deduplication** using AST fingerprints
 - **Diversity top-up** for underrepresented model families
 - **Family-aware train/dev/test splits**
 
+### Stage 2: ChatPrep Pipeline
+- **Conversational conversion** of deduplicated code into chat format
+- **Template-based generation** of user-assistant interactions
+- **Quality validation** following SFT standards
+- **JSONL export** for language model training
+
 ## Features
 
+### Deduplication Pipeline
 - **Multi-level Deduplication**: Exact, lexical (MinHash+LSH), and structural (AST) deduplication
 - **Prefix-aware Processing**: Maintains representation across different model families
 - **Family-aware Splits**: Ensures proper train/dev/test separation by model families
 - **Diversity Top-up**: Intelligently adds diverse samples for underrepresented prefixes
 - **Comprehensive Reporting**: Detailed statistics and curation reports
 - **Code Export**: Exports deduplicated code files for further use
+
+### ChatPrep Pipeline
+- **Conversational Format**: Converts code into chat-style interactions for LLM training
+- **Template-based Generation**: Uses customizable templates for consistent formatting
+- **Infill Support**: Generates partial code examples for completion tasks
+- **Validation & Filtering**: Ensures high-quality, parseable examples following SFT standards
+- **Family-aware Splitting**: Prevents data leakage across model families
+- **JSONL Export**: Generates training-ready chat data in standard format
 
 ## Installation
 
@@ -98,6 +115,93 @@ python -m ab.dup.preprocessing \
 - `--dump-accepted-code-dir`: Subdirectory for exported code files
 - `--upweight`: Sampling weight rules (PREFIX:FACTOR)
 - `--verbose`: Enable verbose logging
+
+## ChatPrep: Converting Code to Chat Data
+
+The ChatPrep module converts deduplicated neural network code into structured chat data suitable for training language models. It generates conversational examples with system prompts, user requests, and model responses.
+
+### ChatPrep Usage
+
+#### Python API
+
+```python
+from ab.chatprep import ChatPrepConfig
+
+# Basic usage with defaults
+config = ChatPrepConfig()
+result = config.run()
+
+# Custom configuration
+config = ChatPrepConfig(
+    accepted_dir="../curation_output/accepted_code",
+    out_dir="../curation_output/chat_data",
+    seed=123,
+    fix_fences=True,
+    drop_unparseable=True,
+    group_by_source=True
+)
+result = config.run()
+```
+
+#### Command Line Interface
+
+```bash
+python -m ab.chatprep.cli.main \
+    --accepted-dir ../curation_output/accepted_code \
+    --out ../curation_output/chat_data \
+    --seed 123 \
+    --fix-fences \
+    --drop-unparseable \
+    --group-by-source
+```
+
+### ChatPrep Configuration Parameters
+
+- `accepted_dir`: Directory with accepted code files (default: `"curation_output/accepted_code"`)
+- `out_dir`: Output directory for chat data (default: `"curation_output/chat_data"`)
+- `no_infill`: Disable infill generation (default: `False`)
+- `seed`: Random seed for reproducibility (default: `42`)
+- `fix_fences`: Fix code fences in generated examples (default: `True`)
+- `drop_unparseable`: Drop unparseable examples (default: `True`)
+- `require_module_subclass`: Require module subclass structure (default: `True`)
+- `write_drop_report`: Write report of dropped examples (default: `True`)
+- `group_by_source`: Group by source for splitting (default: `True`)
+- `split_ratios`: Train/dev/test ratios (default: `(0.8, 0.1, 0.1)`)
+- `model_name`: Optional model name for rendering (default: `None`)
+- `train_name`: Training file name (default: `"train.jsonl"`)
+- `dev_name`: Dev file name (default: `"dev.jsonl"`)
+- `test_name`: Test file name (default: `"test.jsonl"`)
+
+### ChatPrep Output Files
+
+The ChatPrep pipeline generates:
+
+- **`train.jsonl`**: Training examples in JSONL format
+- **`dev.jsonl`**: Development/validation examples
+- **`test.jsonl`**: Test examples
+- **`manifest.json`**: Metadata about the generated dataset
+- **`drop_report.json`**: Report of examples that were filtered out
+
+### Example Chat Data Format
+
+```json
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful AI assistant that generates PyTorch code for computer vision tasks."
+    },
+    {
+      "role": "user", 
+      "content": "Task: Design a PyTorch CV model for image classification.\nDataset: CIFAR-10 (32x32x3).\nParameters: ≤1M.\nTricks: batch normalization, dropout, data augmentation."
+    },
+    {
+      "role": "assistant",
+      "content": "```python\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass CIFAR10Model(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)\n        self.bn1 = nn.BatchNorm2d(32)\n        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)\n        self.bn2 = nn.BatchNorm2d(64)\n        self.dropout = nn.Dropout(0.25)\n        self.fc = nn.Linear(64 * 8 * 8, 10)\n    \n    def forward(self, x):\n        x = F.relu(self.bn1(self.conv1(x)))\n        x = F.max_pool2d(x, 2)\n        x = F.relu(self.bn2(self.conv2(x)))\n        x = F.max_pool2d(x, 2)\n        x = self.dropout(x)\n        x = x.view(x.size(0), -1)\n        x = self.fc(x)\n        return x\n```"
+    }
+  ]
+}
+```
 
 ## Configuration
 
