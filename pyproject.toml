@@ -49,5 +49,5 @@ dev = [
     'flake8>=6.0'
 ]
 
-[tool.setuptools.entry-points]
-console_scripts = ['lemur-preprocess = ab.dup.preprocessing:main']
+[project.scripts]
+lemur-preprocess = "ab.dup.preprocessing:main"
