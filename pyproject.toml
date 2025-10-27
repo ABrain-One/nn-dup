@@ -6,19 +6,27 @@ build-backend = 'setuptools.build_meta'
 name = 'nn-dup'
 dynamic = ['version', 'dependencies']
 description = 'Prefix-aware curation & near-dedup for NN code via MinHash/LSH and AST fingerprints.'
+long-description = 'LEMUR NN curation & dedup pipeline: prefix-aware exact/near/AST dedup, diversity top-up, and accepted-code export.'
+long-description-content-type = 'text/markdown'
 readme = { file = 'README.md', content-type = 'text/markdown' }
-license = { file = "LICENSE" }
+license = { file = 'LICENSE' }
 requires-python = '>=3.10'
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent"
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    'Topic :: Software Development :: Code Generators'
 ]
+
+keywords = ['LLM', 'deduplication', 'MinHash', 'LSH', 'AST', 'neural networks', 'data curation', 'pretraining', 'fine-tuning']
+
 authors = [{ name = 'ABrain One and contributors', email = 'AI@ABrain.one' }]
 
 [project.urls]
 Homepage = 'https://ABrain.one'
 Repository = 'https://github.com/ABrain-One/nn-dup'
+'Bug Tracker' = 'https://github.com/ABrain-One/nn-dup/issues'
 
 [tool.setuptools.dynamic]
 version = { file = 'version' }
@@ -34,6 +42,14 @@ include-package-data = true
 '*' = ['**/*.json']
 
 [tool.setuptools.package-data]
-'ab' = ['*.md']
-'*' = ['requirements.txt', 'README.md', 'LICENSE', 'version']
+'*' = ['*.md', 'requirements.txt', 'LICENSE', 'version']
 
+[project.optional-dependencies]
+dev = [
+    'black>=23.0',
+    'isort>=5.0',
+    'flake8>=6.0'
+]
+
+[tool.setuptools.entry-points]
+console_scripts = ['lemur-preprocess = ab.dup.preprocessing:main']
