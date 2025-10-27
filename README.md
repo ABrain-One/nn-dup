@@ -290,7 +290,7 @@ If you use this pipeline in your research, please cite:
   title={Neural Network Deduplication Pipeline},
   author={Waleed Khalid},
   year={2025},
-  url={https://github.com/your-org/nn-dup}
+  url={https://github.com/ABrain-One/nn-dup}
 }
 ```
 
