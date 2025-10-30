@@ -6,9 +6,9 @@ A sophisticated data curation and near-deduplication pipeline for neural network
 
 The original version of the NN Dup project was created by <strong>Waleed Khalid</strong> at the Computer Vision Laboratory, University of Würzburg, Germany.
 
-## Overview
+## 📖 Overview
 
-This comprehensive pipeline processes neural network implementations from the LEMUR dataset through two main stages:
+This comprehensive pipeline processes neural network implementations from the <a href='https://github.com/ABrain-One/nn-dataset'>LEMUR dataset</a> through two main stages:
 
 ### Stage 1: Deduplication Pipeline
 - **Exact deduplication** with prefix-aware canonicalization
@@ -296,6 +296,6 @@ If you use this pipeline in your research, please cite:
 
 ## Acknowledgments
 
-- Built for the LEMUR dataset and NNGPT projects
+- Built for the <a href='https://github.com/ABrain-One/nn-dataset'>LEMUR dataset</a> and <a href='https://github.com/ABrain-One/nn-gpt'>NNGPT</a> projects
 - Developed at the Computer Vision Laboratory, University of Würzburg
 - Part of the ABrain One research initiative
