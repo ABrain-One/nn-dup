@@ -2,13 +2,13 @@
 <sub><a href='https://pypi.python.org/pypi/nn-dup'><img src='https://img.shields.io/pypi/v/nn-dup.svg'/></a> <a href="https://pepy.tech/project/nn-dup"><img alt="GitHub release" src="https://static.pepy.tech/badge/nn-dup"></a><br/>
 short alias <a href='https://pypi.python.org/pypi/ldup'>ldup</a></sub>
 
-A sophisticated data curation and near-deduplication pipeline for neural network code from the LEMUR dataset. This project implements prefix-aware exact/near/AST deduplication with diversity top-up capabilities, followed by conversational chat data preparation for language model training. Outputs include train/dev/test JSON files ready for supervised fine-tuning.
-
 The original version of the NN Dup project was created by <strong>Waleed Khalid</strong> at the Computer Vision Laboratory, University of Würzburg, Germany.
 
 ## 📖 Overview
 
-This comprehensive pipeline processes neural network implementations from the <a href='https://github.com/ABrain-One/nn-dataset'>LEMUR dataset</a> through two main stages:
+A sophisticated data curation and near-deduplication pipeline for neural network code from the <a href='https://github.com/ABrain-One/nn-dataset'>LEMUR dataset</a>. This project implements prefix-aware exact/near/AST deduplication with diversity top-up capabilities, followed by conversational chat data preparation for language model training. Outputs include train/dev/test JSON files ready for supervised fine-tuning.
+
+This comprehensive pipeline processes neural network implementations from the LEMUR dataset through two main stages:
 
 ### Stage 1: Deduplication Pipeline
 - **Exact deduplication** with prefix-aware canonicalization
