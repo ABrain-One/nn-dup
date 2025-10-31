@@ -1,11 +1,20 @@
 # cli/chatprep_cli.py
 import argparse
-from ab.chatprep.prompt_builder import ChatPrepConfig
+import sys
+from pathlib import Path
+
+# Handle both module and direct execution
+try:
+    from ..prompt_builder import ChatPrepConfig
+except ImportError:
+    # Fallback for direct execution
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    from ab.chatprep.prompt_builder import ChatPrepConfig
 
 def main():
     ap = argparse.ArgumentParser("LEMUR ChatPrep – arguments → ChatPrepConfig")
     ap.add_argument("--accepted-dir", type=str, default="curation_output/accepted_code")
-    ap.add_argument("--out", type=str, default="chat_data")
+    ap.add_argument("--out", type=str, default="curation_output/chat_data")
     ap.add_argument("--no-infill", action="store_true")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--fix-fences", action="store_true")
