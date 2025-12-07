@@ -5,6 +5,8 @@ import logging
 import random
 import json
 import pandas as pd
+import sys
+from tqdm import tqdm
 
 # External API
 import ab.nn.api as lemur  # programmatic dataset access
@@ -203,7 +205,8 @@ def diversity_topup(kept: Dict[str, dict],
         return kept
 
     kept_fp: Dict[str, StructuralFingerprint] = {}
-    for rid, meta in kept.items():
+    logger.info("  Computing structural fingerprints for top-up...")
+    for rid, meta in tqdm(kept.items(), desc="Top-up fingerprints", leave=False):
         kept_fp[rid] = structural_fingerprint_from_source(meta["code"])
 
     def lex_jaccard_to_kept_same_prefix(code: str, prefix: str) -> float:
@@ -242,7 +245,8 @@ def diversity_topup(kept: Dict[str, dict],
 
     removed_ids = list(tombstones.keys())
     added_total = 0
-    for pref in topup_prefixes:
+    logger.info("  Processing diversity top-up candidates...")
+    for pref in tqdm(topup_prefixes, desc="Diversity top-up", leave=False):
         pool = []
         for rid in removed_ids:
             rec = record_index.get(rid)
@@ -260,7 +264,7 @@ def diversity_topup(kept: Dict[str, dict],
 
         pool.sort(key=lambda r: canonical_quality_key(r["name"], r["code"], r["accuracy"]))
         added = 0
-        for rec in pool:
+        for rec in tqdm(pool, desc=f"Top-up {pref}", leave=False):
             best_lex = lex_jaccard_to_kept_same_prefix(rec["code"], pref)
             best_struct = struct_jaccard_to_kept_same_prefix(rec["code"], pref)
             if best_lex > topup_lex_max:
@@ -318,12 +322,18 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
         from .utils.logutils import setup_logging
         logger = setup_logging(verbose=False)
 
+    # Configure tqdm to work better with logging
+    # tqdm automatically handles TTY detection and logging interference
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # 0) Fetch & filter
     logger.info("[0] Fetching LEMUR data…")
-    df = fetch_lemur_df()
-    logger.info(f"  Received {len(df)} rows.")
+    try:
+        df = fetch_lemur_df()
+        logger.info(f"  Received {len(df)} rows.")
+    except Exception as e:
+        logger.error(f"Failed to fetch LEMUR data: {e}")
+        raise
     df = apply_prefix_filter(df, includes)
     logger.info(f"  After --include filter: {len(df)} rows.")
 
@@ -361,31 +371,42 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
     seen_hashes = set()
     duplicate_code_count = 0
 
-    for idx, row in df.iterrows():
-        name = str(row[name_col]) if name_col else ""
-        code = str(row[code_col]) if code_col in df.columns else ""
-        if not code.strip():
-            empty_code_count += 1
-            continue
+    logger.info("  Building records from dataframe...")
+    # Use index iteration for better performance with tqdm
+    pbar = tqdm(total=len(df), desc="Building records", leave=False, mininterval=0.5)
+    for idx in df.index:
+        try:
+            row = df.loc[idx]
+            name = str(row[name_col]) if name_col else ""
+            code = str(row[code_col]) if code_col in df.columns else ""
+            if not code.strip():
+                empty_code_count += 1
+                pbar.update(1)
+                continue
 
-        acc = float(row[acc_col]) if acc_col and pd.notnull(row[acc_col]) else None
-        code_hash = sha256_text(code)
-        rid = f"{code_hash}_{idx}"
+            acc = float(row[acc_col]) if acc_col and pd.notnull(row[acc_col]) else None
+            code_hash = sha256_text(code)
+            rid = f"{code_hash}_{idx}"
 
-        if code_hash in seen_hashes:
-            duplicate_code_count += 1
-        seen_hashes.add(code_hash)
+            if code_hash in seen_hashes:
+                duplicate_code_count += 1
+            seen_hashes.add(code_hash)
 
-        fam_tag = get_model_family(name, code)
-        records.append({
-            "id": rid,
-            "name": name,
-            "code": code,
-            "accuracy": acc,
-            "code_hash": code_hash,
-            "row_idx": idx,
-            "family_tag": fam_tag
-        })
+            fam_tag = get_model_family(name, code)
+            records.append({
+                "id": rid,
+                "name": name,
+                "code": code,
+                "accuracy": acc,
+                "code_hash": code_hash,
+                "row_idx": idx,
+                "family_tag": fam_tag
+            })
+        except Exception as e:
+            logger.warning(f"Error processing row {idx}: {e}")
+        finally:
+            pbar.update(1)
+    pbar.close()
 
     logger.info(f"  Records with non-empty code: {len(records)}")
     logger.info(f"  Unique code hashes: {len(seen_hashes)}")
@@ -398,7 +419,7 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
     # 1) Exact dedup (prefix-aware canonicalization)
     logger.info("[1] Exact dedup (prefix-aware)…")
     by_hash = collections.defaultdict(list)
-    for r in records:
+    for r in tqdm(records, desc="Grouping by hash", leave=False):
         by_hash[r["code_hash"]].append(r)
 
     def choose_canonical_exact(group: List[dict]) -> dict:
@@ -410,7 +431,7 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
 
     exact_removed = {}
     kept: Dict[str, dict] = {}
-    for h, group in by_hash.items():
+    for h, group in tqdm(by_hash.items(), desc="Exact dedup", leave=False):
         if len(group) == 1:
             r = group[0]
             kept[r["id"]] = {"name": r["name"], "accuracy": r["accuracy"], "code": r["code"],
@@ -427,10 +448,12 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
     logger.info(f"  After exact dedup: {len(kept)} records kept, {len(exact_removed)} exact duplicates removed")
 
     # 2) Lexical near-dedup (family aware + per-prefix coverage)
-    logger.info("[2] Lexical near-dedup (MinHash+LSH)…")
+    logger.info(f"[2] Lexical near-dedup (MinHash+LSH)… Processing {len(kept)} records")
     norm, toks, shing, mhash = {}, {}, {}, {}
     family_label_map = {}
 
+    logger.info("  Computing MinHash signatures...")
+    pbar = tqdm(total=len(kept), desc="Computing MinHash", leave=False, mininterval=0.5)
     for i, (k, meta) in enumerate(kept.items()):
         family_label_map[k] = get_model_family(meta["name"], meta["code"])
         model_region = extract_model_region(meta["code"])
@@ -442,13 +465,16 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
         sh = shingles(t, SHINGLE_K)
         shing[k] = sh
         mhash[k] = minhash_from_shingles(sh, NUM_PERM)
+        pbar.update(1)
+    pbar.close()
 
     doc_keys = list(kept.keys())
     lsh_clusters = cluster_near_duplicates_lsh(doc_keys, mhash, LSH_THRESH)
     logger.info(f"  LSH candidate groups: {len(lsh_clusters)}")
 
     near_removed = {}
-    for cluster in lsh_clusters:
+    logger.info("  Processing LSH clusters...")
+    for cluster in tqdm(lsh_clusters, desc="Lexical dedup", leave=False):
         g = list(cluster)
         pairs = []
         for i in range(len(g)):
@@ -544,7 +570,8 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
     # 3) Structural (AST) dedup
     logger.info("[3] Structural (AST) dedup…")
     fp: Dict[str, StructuralFingerprint] = {}
-    for i, (rid, meta) in enumerate(kept.items()):
+    logger.info("  Computing structural fingerprints...")
+    for i, (rid, meta) in enumerate(tqdm(kept.items(), desc="AST fingerprints", leave=False)):
         fp[rid] = structural_fingerprint_from_source(meta["code"])
 
     by_struct_hash = collections.defaultdict(list)
@@ -569,27 +596,34 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
                 kept.pop(rid, None)
 
     keys_remaining = list(kept.keys())
-    for i in range(len(keys_remaining)):
-        for j in range(i + 1, len(keys_remaining)):
-            a, b = keys_remaining[i], keys_remaining[j]
-            if a not in kept or b not in kept:
-                continue
-            sim = structural_jaccard(fp[a], fp[b])
-            if sim >= JACCARD_THRESH_STRUCT:
-                canon = a if canonical_quality_key(
-                    kept[a]["name"], kept[a]["code"], kept[a]["accuracy"]
-                ) <= canonical_quality_key(
-                    kept[b]["name"], kept[b]["code"], kept[b]["accuracy"]
-                ) else b
-                other = b if canon == a else a
-                structural_removed[other] = {
-                    "reason": "structural_duplicate_near",
-                    "canonical": canon,
-                    "struct_jaccard": round(sim, 3),
-                    "name": kept[other]["name"],
-                    "canonical_name": kept[canon]["name"]
-                }
-                kept.pop(other, None)
+    logger.info("  Comparing structural fingerprints...")
+    total_comparisons = len(keys_remaining) * (len(keys_remaining) - 1) // 2
+    if total_comparisons > 0:
+        pbar = tqdm(total=total_comparisons, desc="Structural comparison", leave=False, mininterval=1.0)
+        for i in range(len(keys_remaining)):
+            for j in range(i + 1, len(keys_remaining)):
+                a, b = keys_remaining[i], keys_remaining[j]
+                if a not in kept or b not in kept:
+                    pbar.update(1)
+                    continue
+                sim = structural_jaccard(fp[a], fp[b])
+                if sim >= JACCARD_THRESH_STRUCT:
+                    canon = a if canonical_quality_key(
+                        kept[a]["name"], kept[a]["code"], kept[a]["accuracy"]
+                    ) <= canonical_quality_key(
+                        kept[b]["name"], kept[b]["code"], kept[b]["accuracy"]
+                    ) else b
+                    other = b if canon == a else a
+                    structural_removed[other] = {
+                        "reason": "structural_duplicate_near",
+                        "canonical": canon,
+                        "struct_jaccard": round(sim, 3),
+                        "name": kept[other]["name"],
+                        "canonical_name": kept[canon]["name"]
+                    }
+                    kept.pop(other, None)
+                pbar.update(1)
+        pbar.close()
 
     logger.info(f"  After structural dedup: {len(kept)} records kept, {len(structural_removed)} structural duplicates removed")
 
@@ -616,7 +650,8 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
 
     # 5) Families & splits
     logger.info("[5] Building family-holdout splits…")
-    for rid, meta in list(kept.items()):
+    logger.info("  Computing missing fingerprints...")
+    for rid, meta in tqdm(list(kept.items()), desc="Family fingerprints", leave=False):
         if rid not in fp:
             fp[rid] = structural_fingerprint_from_source(meta["code"])
 

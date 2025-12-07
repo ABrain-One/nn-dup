@@ -19,7 +19,7 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--fix-fences", action="store_true")
     ap.add_argument("--drop-unparseable", action="store_true")
-    ap.add_argument("--group-by-source", action="store_true")
+    ap.add_argument("--no-group-by-source", action="store_true", help="Disable source-level grouping (default: enabled)")
     ap.add_argument("--model", type=str, default=None)
 
     args = ap.parse_args()
@@ -31,12 +31,10 @@ def main():
         seed=args.seed,
         fix_fences=args.fix_fences,
         drop_unparseable=args.drop_unparseable,
-        group_by_source=args.group_by_source,
+        group_by_source=not args.no_group_by_source,
         model_name=args.model,
     )
 
-    # NOTE: per your request, CLI only passes args to main class.
-    # If you still want the CLI to execute, uncomment:
     result = cfg.run()
     print("Chat data written:", result["paths"])
     print("Counts:", result["counts"])
