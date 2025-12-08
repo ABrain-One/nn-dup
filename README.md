@@ -82,7 +82,7 @@ pip install git+https://github.com/ABrain-One/nn-dup.git
 Run the deduplication pipeline with default settings:
 
 ```bash
-python -m ab.dup.preprocessing --out ./curation_output
+python -m ab.dup.main --out ./curation_output
 ```
 
 ### Advanced Usage
@@ -90,7 +90,7 @@ python -m ab.dup.preprocessing --out ./curation_output
 Filter for specific model families and configure deduplication:
 
 ```bash
-python -m ab.dup.preprocessing \
+python -m ab.dup.main \
     --out ./curation_output \
     --include FractalNet \
     --include ResNet \
@@ -249,7 +249,7 @@ The pipeline generates several output files:
 ### Running Tests
 
 ```bash
-python -m ab.dup.preprocessing --help
+python -m ab.dup.main --help
 ```
 
 ### Code Quality
