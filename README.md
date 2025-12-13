@@ -286,6 +286,13 @@ MIT License - see LICENSE file for details.
 If you use this pipeline in your research, please cite:
 
 ```bibtex
+@article{ABrain.NN-RAG,
+  title={A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks},
+  author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
+  journal={arXiv preprint arXiv:2512.04329},
+  year={2025}
+}
+
 @software{nn_dup_2025,
   title={Neural Network Deduplication Pipeline},
   author={Waleed Khalid},
