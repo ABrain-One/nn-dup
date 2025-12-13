@@ -1,8 +1,8 @@
-# Neural Network Deduplication Pipeline (NN Dup)
+# Neural Network Deduplication Pipeline (NN-Dup)
 <sub><a href='https://pypi.python.org/pypi/nn-dup'><img src='https://img.shields.io/pypi/v/nn-dup.svg'/></a> <a href="https://pepy.tech/project/nn-dup"><img alt="GitHub release" src="https://static.pepy.tech/badge/nn-dup"></a><br/>
 short alias <a href='https://pypi.python.org/pypi/ldup'>ldup</a></sub>
 
-The original version of the NN Dup project was created by <strong>Waleed Khalid</strong> at the Computer Vision Laboratory, University of Würzburg, Germany.
+The original version of the NN-Dup project was created by <strong>Waleed Khalid</strong> at the Computer Vision Laboratory, University of Würzburg, Germany.
 
 ## 📖 Overview
 
@@ -283,7 +283,10 @@ MIT License - see LICENSE file for details.
 
 ## Citation
 
-If you use this pipeline in your research, please cite:
+If you use this pipeline, please consider citing:
+
+- **Paper:** <a href="https://arxiv.org/pdf/2512.04329" target="_blank">A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks</a>
+- **Software:** Neural Network Deduplication Pipeline
 
 ```bibtex
 @article{ABrain.NN-RAG,
