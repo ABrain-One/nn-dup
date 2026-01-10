@@ -286,14 +286,26 @@ MIT License - see LICENSE file for details.
 If you use this pipeline, please consider citing:
 
 - **Paper:** <a href="https://arxiv.org/pdf/2512.04329" target="_blank">A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks</a>
+- **Paper:** <a href="https://arxiv.org/pdf/2601.02997" target="_blank">From Memorization to Creativity: LLM as a Designer of Novel Neural-Architectures</a>
 - **Software:** Neural Network Deduplication Pipeline
 
 ```bibtex
 @article{ABrain.NN-RAG,
   title={A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks},
   author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
-  journal={arXiv preprint arXiv:2512.04329},
+  journal={arXiv preprint},
+  volume  = {arXiv:2512.04329},
+  url = {https://arxiv.org/pdf/2512.04329}, 
   year={2025}
+}
+
+@article{ABrain.Architect,
+	title={From Memorization to Creativity: LLM as a Designer of Novel Neural-Architectures},
+	author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
+	journal={arXiv preprint},
+	volume  = {arXiv:2601.02997},
+	url = {https://arxiv.org/pdf/2601.02997}, 
+	year={2026}
 }
 
 @software{nn_dup_2025,
