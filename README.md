@@ -285,11 +285,20 @@ MIT License - see LICENSE file for details.
 
 If you use this pipeline, please consider citing:
 
+- **Paper:** <a href="https://openaccess.thecvf.com/content/CVPR2026W/CVPR-NAS26/papers/Khalid_From_Memorization_to_Creativity_LLM_as_a_Designer_of_Novel_CVPRW_2026_paper.pdf" target="_blank">From Memorization to Creativity: LLM as a Designer of Novel Neural-Architectures</a>
 - **Paper:** <a href="https://arxiv.org/pdf/2512.04329" target="_blank">A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks</a>
-- **Paper:** <a href="https://arxiv.org/pdf/2601.02997" target="_blank">From Memorization to Creativity: LLM as a Designer of Novel Neural-Architectures</a>
 - **Software:** Neural Network Deduplication Pipeline
 
 ```bibtex
+
+@InProceedings{ABrain.Architect,
+	title={From Memorization to Creativity: {LLM} as a Designer of Novel Neural Architectures},
+	author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
+	booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)},	
+	pages = {3252--3261},	
+	year={2026}
+}
+
 @article{ABrain.NN-RAG,
   title={A Retrieval-Augmented Generation Approach to Extracting Algorithmic Logic from Neural Networks},
   author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
@@ -297,14 +306,6 @@ If you use this pipeline, please consider citing:
   volume  = {arXiv:2512.04329},
   url = {https://arxiv.org/pdf/2512.04329}, 
   year={2025}
-}
-
-@InProceedings{ABrain.Architect,
-	title={From Memorization to Creativity: {LLM} as a Designer of Novel Neural Architectures},
-	author={Khalid, Waleed and Ignatov, Dmitry and Timofte, Radu},
-	booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)},	
-	year={2026},
-    note={to appear}
 }
 
 @software{nn_dup_2025,
