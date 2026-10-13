@@ -35,8 +35,8 @@ from .utils.report import build_report
 # Fetch & filtering
 # ------------------------------------------------------------------------------
 
-def fetch_lemur_df() -> pd.DataFrame:
-    df = lemur.data(only_best_accuracy=True)  # type: ignore[arg-type]
+def fetch_lemur_df(dataset: Optional[str] = None) -> pd.DataFrame:
+    df = lemur.data(only_best_accuracy=True, dataset=dataset)  # type: ignore[arg-type]
     if not isinstance(df, pd.DataFrame):
         raise RuntimeError("lemur.data() did not return a pandas.DataFrame")
     return df
@@ -307,7 +307,8 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
                       topup_struct_max: float = 0.60,
                       dump_code_subdir: str = "accepted_code",
                       upweights: List[Tuple[str, float]] = None,
-                      logger: logging.Logger = None):
+                      logger: logging.Logger = None,
+                      dataset: Optional[str] = None):
 
     # Set defaults for None values
     if includes is None:
@@ -329,7 +330,7 @@ def curate_from_lemur(out_dir: Path = Path("./curation_output"),
     # 0) Fetch & filter
     logger.info("[0] Fetching LEMUR data…")
     try:
-        df = fetch_lemur_df()
+        df = fetch_lemur_df(dataset)
         logger.info(f"  Received {len(df)} rows.")
     except Exception as e:
         logger.error(f"Failed to fetch LEMUR data: {e}")
